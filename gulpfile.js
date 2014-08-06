@@ -15,7 +15,7 @@ var paths = {
 gulp.task('default', ['sass']);
 
 // ios-sim is ios simulator for testing
-gulp.task('install', shell.task(['npm install', 'bower install', 'npm install -g ionic cordova ios-sim']));
+gulp.task('install', shell.task(['npm install', 'bower install', 'npm install -g ionic cordova ios-sim ios-deploy']));
 
 // for live reload and preview
 gulp.task('preview', shell.task(['echo auto-live preview...', 'ionic serve']));
@@ -24,7 +24,7 @@ gulp.task('preview', shell.task(['echo auto-live preview...', 'ionic serve']));
 gulp.task('test', shell.task(['echo running tests...', 'karma start']));
 
 // run the app before ...
-gulp.task('run', shell.task(['echo build, emulate, run your ios app', 'ionic build ios && ionic emulate ios && ionic run ios']));
+gulp.task('run', shell.task(['echo build, emulate, run your ios app', 'ionic platform ios && ionic build ios && ionic emulate ios && ionic run ios']));
 
 // linting
 gulp.task('lint', function () {

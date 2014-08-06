@@ -1,12 +1,11 @@
 angular.module('app.recommend', [])
 
 .run(function() {
-  
+
 })
 
 .config(function($stateProvider) {
   $stateProvider
-
     .state('app.recommend', {
       url: "/recommend",
       views: {
@@ -18,8 +17,6 @@ angular.module('app.recommend', [])
 })
 
 .controller('recommendationCtrl',function($scope, $rootScope, ShowBeersFactory){
-
-
 
   $scope.showBeer = function() {
   	return $rootScope.selectedBeer;
