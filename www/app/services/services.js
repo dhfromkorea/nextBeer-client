@@ -2,26 +2,11 @@
   // iife is here to preserve the following config variables
   // change this url—whether prod or local
   var config = {
-    baseUrl: 'http://0.0.0.0:5000/api/v3'
+    baseUrl: 'http://next-beer.herokuapp.com/api/v3',
+    defaultState: 'app.recommend'
   };
   // cache the selectedBeer for previous page nav
   var selectedBeer;
-
-  // ideally we should use $resource or make a
-  // GET request to fetch the initial training set
-  var tutorialCards = [{
-    tutorialId: 1,
-    tutorialName: "Welcome to NextBeer, the intelligent beer discovery app!",
-    tutorialImgUrl: "./dist/img/beer.png"
-  }, {
-    tutorialId: 2,
-    tutorialName: "Swipe right on beers you like or want to try. Swipe left on the rest!",
-    tutorialImgUrl: "./dist/img/swipe-right.png"
-  }, {
-    tutorialId: 3,
-    tutorialName: "Click a beer to see its details, or navigate to My Beers in the side menu to see beers you liked.",
-    tutorialImgUrl: "./dist/img/tab.png"
-  }];
 
   var initTrainingBeers = [{
     trainingId: 1,
@@ -72,15 +57,8 @@
   // all non-user-specific and beer-specific operations go here
   .factory('BeerFactory', ['$http', '$window', '$state', 'UtilFactory', 'UserFactory',
     function($http, $window, $state, UtilFactory, UserFactory) {
-      var tutorials = UserFactory.getTutorials();
       var trainingBeers = UserFactory.getTrainingBeers();
-      var beerRecQueue;
-      if (tutorials.length > 0) {
-        beerRecQueue = _.union(tutorialCards, trainingBeers);
-      } else {
-        beerRecQueue = trainingBeers;
-      }
-
+      var beerRecQueue = trainingBeers;
       var sendRating = function(beerReview) {
         return $http({
           method: 'POST',
@@ -182,29 +160,6 @@
           setHeader($window.localStorage.getItem('Token'));
         }
       };
-
-      /**
-       * TUTORIAL CARDS
-       */
-      var getTutorials = function() {
-        return JSON.parse($window.localStorage.getItem('Tutorial'));
-      };
-
-      var initializeTutorials = function() {
-        !!getTutorials() || $window.localStorage.setItem('Tutorial', JSON.stringify(tutorialCards));
-      };
-
-      var updateTutorialProgress = function(completedTutorial) {
-        var tutorials = getTutorials();
-        var remainingTutorials = _.filter(tutorials, function(tutorial) {
-          return tutorial.tutorialId !== completedTutorial.tutorialId;
-        });
-        $window.localStorage.setItem('Tutorial', JSON.stringify(remainingTutorials));
-      };
-      // if there's no existing tutorial in localstorage, we initialize with the complete tutorial cards
-      // this will be run when this factory gets instantiated
-      initializeTutorials();
-
       /**
        * INITIAL TRAINING DATA
        * - the dummy data is at top of this script
@@ -231,16 +186,14 @@
 
       return {
         enableToken: enableToken,
-        getTutorials: getTutorials,
-        updateTutorialProgress: updateTutorialProgress,
         getTrainingBeers: getTrainingBeers,
         updateTrainingBeer: updateTrainingBeer
       };
     }
   ])
   // non-beer, non-user-related operations go here
-  .factory('UtilFactory', ['$ionicPopup',
-    function($ionicPopup) {
+  .factory('UtilFactory', ['$ionicPopup','$rootScope', '$state',
+    function($ionicPopup, $rootScope, $state) {
       var errorHandler = function(err) {
         throw err;
       };
@@ -251,10 +204,18 @@
       var showAlertPopUp = function(config, cb) {
         $ionicPopup.confirm(config).then(cb).catch(errorHandler);
       };
+      var navToPrevState = function(){
+        $state.go($rootScope.prevState);
+      };
+      var navToDefaultState = function(){
+        $state.go(config.defaultState);
+      };
       return {
         errorHandler: errorHandler,
         showConfirmPopUp: showConfirmPopUp,
-        showAlertPopUp: showAlertPopUp
+        showAlertPopUp: showAlertPopUp,
+        navToPrevState: navToPrevState,
+        navToDefaultState: navToDefaultState
       }
     }
   ]);
